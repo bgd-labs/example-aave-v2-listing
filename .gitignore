@@ -1,0 +1,10 @@
+node_modules
+.idea
+reports/
+.env
+.env.local
+.DS_Store
+
+# Foundry
+out/
+cache/
