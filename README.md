@@ -7,8 +7,11 @@ This repository contains an example of a listing on Aave v2 Ethereum, including 
 - Aave v2 pool helpers: [AaveV2Helpers](./src/test/utils/AaveV2Helpers.sol)
 - Aave governance helpers: [AaveGovHelpers](./src/test/utils/AaveGovHelpers.sol)
 
-<br>
-<br>
+### Prepare env
+
+```
+cp .env.example .env
+```
 
 ### Dependencies
 
