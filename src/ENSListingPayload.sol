@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
+// todo: should obviously be from lib
+import { AaveAddressBookV2, Market } from './AaveAddressBookV2.sol';
+
 interface Initializable {
     function initialize(
         uint8 underlyingAssetDecimals,
@@ -13,50 +16,7 @@ interface IProposalGenericExecutor {
     function execute() external;
 }
 
-interface IPriceOracle {
-    function setAssetSources(
-        address[] calldata assets,
-        address[] calldata sources
-    ) external;
-}
-
-interface ILendingPoolAddressesProvider {
-    function getLendingPoolConfigurator() external returns (address);
-
-    function getPriceOracle() external view returns (address);
-}
-
-interface ILendingPoolConfigurator {
-    function initReserve(
-        address aTokenImpl,
-        address stableDebtTokenImpl,
-        address variableDebtTokenImpl,
-        uint8 underlyingAssetDecimals,
-        address interestRateStrategyAddress
-    ) external;
-
-    function configureReserveAsCollateral(
-        address asset,
-        uint256 ltv,
-        uint256 liquidationThreshold,
-        uint256 liquidationBonus
-    ) external;
-
-    function enableBorrowingOnReserve(
-        address asset,
-        bool stableBorrowRateEnabled
-    ) external;
-
-    function setReserveFactor(address asset, uint256 reserveFactor) external;
-}
-
 contract ENSListingPayload is IProposalGenericExecutor {
-    ILendingPoolAddressesProvider
-        public constant LENDING_POOL_ADDRESSES_PROVIDER =
-        ILendingPoolAddressesProvider(
-            0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5
-        );
-
     address public constant ENS = 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72;
     uint8 public constant ENS_DECIMALS = 18;
 
@@ -78,22 +38,16 @@ contract ENSListingPayload is IProposalGenericExecutor {
     uint256 public constant LIQUIDATION_BONUS = 10800;
 
     function execute() external override {
-        IPriceOracle PRICE_ORACLE = IPriceOracle(
-            LENDING_POOL_ADDRESSES_PROVIDER.getPriceOracle()
-        );
+        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
 
         address[] memory assets = new address[](1);
         assets[0] = ENS;
         address[] memory sources = new address[](1);
         sources[0] = FEED_ENS_USD_TO_ENS_ETH;
 
-        PRICE_ORACLE.setAssetSources(assets, sources);
+        market.ORACLE.setAssetSources(assets, sources);
 
-        ILendingPoolConfigurator lendingPoolConfigurator = ILendingPoolConfigurator(
-                LENDING_POOL_ADDRESSES_PROVIDER.getLendingPoolConfigurator()
-            );
-
-        lendingPoolConfigurator.initReserve(
+        market.POOL_CONFIGURATOR.initReserve(
             ATOKEN_IMPL,
             STABLE_DEBT_IMPL,
             VARIABLE_DEBT_IMPL,
@@ -101,9 +55,9 @@ contract ENSListingPayload is IProposalGenericExecutor {
             INTEREST_RATE_STRATEGY
         );
 
-        lendingPoolConfigurator.enableBorrowingOnReserve(ENS, false);
-        lendingPoolConfigurator.setReserveFactor(ENS, RESERVE_FACTOR);
-        lendingPoolConfigurator.configureReserveAsCollateral(
+        market.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
+        market.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
+        market.POOL_CONFIGURATOR.configureReserveAsCollateral(
             ENS,
             LTV,
             LIQUIDATION_THRESHOLD,
