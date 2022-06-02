@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
+import { AaveV2Eth, Token } from 'aave-address-book/libs/AaveV2Eth.sol';
 
 interface Initializable {
     function initialize(
@@ -37,16 +37,14 @@ contract ENSListingPayload is IProposalGenericExecutor {
     uint256 public constant LIQUIDATION_BONUS = 10800;
 
     function execute() external override {
-        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
-
         address[] memory assets = new address[](1);
         assets[0] = ENS;
         address[] memory sources = new address[](1);
         sources[0] = FEED_ENS_USD_TO_ENS_ETH;
 
-        market.ORACLE.setAssetSources(assets, sources);
+        AaveV2Eth.ORACLE.setAssetSources(assets, sources);
 
-        market.POOL_CONFIGURATOR.initReserve(
+        AaveV2Eth.POOL_CONFIGURATOR.initReserve(
             ATOKEN_IMPL,
             STABLE_DEBT_IMPL,
             VARIABLE_DEBT_IMPL,
@@ -54,9 +52,9 @@ contract ENSListingPayload is IProposalGenericExecutor {
             INTEREST_RATE_STRATEGY
         );
 
-        market.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
-        market.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
-        market.POOL_CONFIGURATOR.configureReserveAsCollateral(
+        AaveV2Eth.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
+        AaveV2Eth.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
+        AaveV2Eth.POOL_CONFIGURATOR.configureReserveAsCollateral(
             ENS,
             LTV,
             LIQUIDATION_THRESHOLD,

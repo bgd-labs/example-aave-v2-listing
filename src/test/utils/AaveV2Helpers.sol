@@ -3,9 +3,10 @@ pragma solidity 0.8.11;
 
 import "forge-std/Vm.sol";
 import "forge-std/console.sol";
+import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
+import { TokenData } from 'aave-address-book/libs/AaveV2.sol';
+
 import {IERC20} from "../../interfaces/IERC20.sol";
-import {AaveAddressBookV2, Market} from '../../AaveAddressBookV2.sol';
-import {TokenData} from '../../AaveV2.sol';
 
 struct ReserveTokens {
     address aToken;
