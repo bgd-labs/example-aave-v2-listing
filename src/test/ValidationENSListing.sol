@@ -25,6 +25,9 @@ contract ValidationENSListing is Test {
     address public constant ENS_WHALE =
         0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
 
+    // can't be constant for some reason
+    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Eth; 
+
     function setUp() public {}
 
     /// @dev Uses an already deployed payload on the target network
@@ -35,7 +38,7 @@ contract ValidationENSListing is Test {
 
     function _testProposal(address payload) internal {
         ReserveConfig[] memory allConfigsBefore = AaveV2Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(false, MARKET_NAME);
 
         address[] memory targets = new address[](1);
         targets[0] = payload;
@@ -65,7 +68,7 @@ contract ValidationENSListing is Test {
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
 
         ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(false, MARKET_NAME);
 
         AaveV2Helpers._validateCountOfListings(
             1,
@@ -103,13 +106,13 @@ contract ValidationENSListing is Test {
             InterestStrategyValues({
                 excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
                 optimalUtilization: 45 * (AaveV2Helpers.RAY / 100),
-                addressesProvider: AaveV2Helpers.ADDRESSES_PROVIDER,
                 baseVariableBorrowRate: 0,
                 stableRateSlope1: 0,
                 stableRateSlope2: 0,
                 variableRateSlope1: 7 * (AaveV2Helpers.RAY / 100),
                 variableRateSlope2: 300 * (AaveV2Helpers.RAY / 100)
-            })
+            }),
+            MARKET_NAME
         );
 
         AaveV2Helpers._noReservesConfigsChangesApartNewListings(
@@ -125,7 +128,8 @@ contract ValidationENSListing is Test {
                 stableDebtToken: ENSListingPayload(payload).STABLE_DEBT_IMPL(),
                 variableDebtToken: ENSListingPayload(payload)
                     .VARIABLE_DEBT_IMPL()
-            })
+            }),
+            MARKET_NAME
         );
 
         AaveV2Helpers._validateAssetSourceOnOracle(
@@ -148,7 +152,8 @@ contract ValidationENSListing is Test {
             true,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .aToken
+                .aToken,
+            MARKET_NAME
         );
         AaveV2Helpers._deposit(
             vm,
@@ -159,7 +164,8 @@ contract ValidationENSListing is Test {
             true,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "AAVE", false)
-                .aToken
+                .aToken,
+            MARKET_NAME
         );
 
         AaveV2Helpers._borrow(
@@ -171,7 +177,8 @@ contract ValidationENSListing is Test {
             2,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "DAI", false)
-                .variableDebtToken
+                .variableDebtToken,
+            MARKET_NAME
         );
 
         AaveV2Helpers._borrow(
@@ -183,7 +190,8 @@ contract ValidationENSListing is Test {
             2,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .variableDebtToken
+                .variableDebtToken,
+            MARKET_NAME
         );
 
         try
@@ -196,7 +204,8 @@ contract ValidationENSListing is Test {
                 1,
                 AaveV2Helpers
                     ._findReserveConfig(allReservesConfigs, "ENS", false)
-                    .stableDebtToken
+                    .stableDebtToken,
+                MARKET_NAME
             )
         {
             revert("_testProposal() : STABLE_BORROW_NOT_REVERTING");
@@ -218,7 +227,8 @@ contract ValidationENSListing is Test {
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
                 .variableDebtToken,
-            true
+            true,
+            MARKET_NAME
         );
 
         vm.startPrank(DAI_WHALE);
@@ -235,7 +245,8 @@ contract ValidationENSListing is Test {
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .variableDebtToken,
-            true
+            true,
+            MARKET_NAME
         );
 
         AaveV2Helpers._withdraw(
@@ -247,7 +258,7 @@ contract ValidationENSListing is Test {
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
                 .aToken,
-            AaveAddressBookV2.AaveV2Eth
+            MARKET_NAME
         );
     }
 }
