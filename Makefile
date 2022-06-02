@@ -6,7 +6,7 @@
 update:; forge update
 
 # Build & test
-build  :; forge build
+build  :; forge build --sizes --force
 test   :; forge test -vvv --rpc-url=${ETH_RPC_URL} --fork-block-number 14302075
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 14302075
 clean  :; forge clean

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-import {VM} from "./VM.sol";
+import "forge-std/Vm.sol";
 
 interface IAaveGov {
     struct ProposalWithoutVotes {
@@ -80,7 +80,7 @@ library AaveGovHelpers {
         0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
 
     function _createProposal(
-        VM vm,
+        Vm vm,
         address aaveWhale,
         IAaveGov.SPropCreateParams memory params
     ) internal returns (uint256) {
@@ -100,7 +100,7 @@ library AaveGovHelpers {
     }
 
     function _passVote(
-        VM vm,
+        Vm vm,
         address aaveWhale,
         uint256 proposalId
     ) internal {

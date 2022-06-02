@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
-import {BaseTest} from "./base/BaseTest.sol";
+
+import "forge-std/Test.sol";
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
+import {AaveAddressBookV2} from '../AaveAddressBookV2.sol';
 
 import {ENSListingPayload} from "../ENSListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
-contract ValidationENSListing is BaseTest {
+contract ValidationENSListing is Test {
     address internal constant AAVE_WHALE =
         0x25F2226B597E8F9514B3F68F00f494cF4f286491;
 
@@ -244,7 +246,8 @@ contract ValidationENSListing is BaseTest {
             type(uint256).max,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .aToken
+                .aToken,
+            AaveAddressBookV2.AaveV2Eth
         );
     }
 }

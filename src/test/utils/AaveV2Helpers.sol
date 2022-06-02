@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-import {console} from "./console.sol";
-import {VM} from "./VM.sol";
+import "forge-std/Vm.sol";
+import "forge-std/console.sol";
 import {IERC20} from "../../interfaces/IERC20.sol";
+import {AaveAddressBookV2, Market} from '../../AaveAddressBookV2.sol';
 
 struct TokenData {
     string symbol;
@@ -537,7 +538,7 @@ library AaveV2Helpers {
     }
 
     function _validateReserveTokensImpls(
-        VM vm,
+        Vm vm,
         ReserveConfig memory config,
         ReserveTokens memory expectedImpls
     ) internal {
@@ -551,7 +552,7 @@ library AaveV2Helpers {
     }
 
     function _deposit(
-        VM vm,
+        Vm vm,
         address depositor,
         address onBehalfOf,
         address asset,
@@ -559,13 +560,14 @@ library AaveV2Helpers {
         bool approve,
         address aToken
     ) internal {
+        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
         uint256 aTokenBefore = IERC20(aToken).balanceOf(onBehalfOf);
         vm.deal(depositor, 1 ether);
         vm.startPrank(depositor);
         if (approve) {
             IERC20(asset).approve(address(POOL), amount);
         }
-        POOL.deposit(asset, amount, onBehalfOf, 0);
+        market.POOL.deposit(asset, amount, onBehalfOf, 0);
         vm.stopPrank();
         uint256 aTokenAfter = IERC20(aToken).balanceOf(onBehalfOf);
 
@@ -576,7 +578,7 @@ library AaveV2Helpers {
     }
 
     function _borrow(
-        VM vm,
+        Vm vm,
         address borrower,
         address onBehalfOf,
         address asset,
@@ -584,10 +586,11 @@ library AaveV2Helpers {
         uint256 interestRateMode,
         address debtToken
     ) public {
+        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
         uint256 debtBefore = IERC20(debtToken).balanceOf(onBehalfOf);
         vm.deal(borrower, 1 ether);
         vm.startPrank(borrower);
-        POOL.borrow(asset, amount, interestRateMode, 0, onBehalfOf);
+        market.POOL.borrow(asset, amount, interestRateMode, 0, onBehalfOf);
         vm.stopPrank();
 
         uint256 debtAfter = IERC20(debtToken).balanceOf(onBehalfOf);
@@ -598,7 +601,7 @@ library AaveV2Helpers {
     }
 
     function _repay(
-        VM vm,
+        Vm vm,
         address whoRepays,
         address debtor,
         address asset,
@@ -607,13 +610,14 @@ library AaveV2Helpers {
         address debtToken,
         bool approve
     ) internal {
+        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
         uint256 debtBefore = IERC20(debtToken).balanceOf(debtor);
         vm.deal(whoRepays, 1 ether);
         vm.startPrank(whoRepays);
         if (approve) {
             IERC20(asset).approve(address(POOL), amount);
         }
-        POOL.repay(asset, amount, interestRateMode, debtor);
+        market.POOL.repay(asset, amount, interestRateMode, debtor);
         vm.stopPrank();
 
         uint256 debtAfter = IERC20(debtToken).balanceOf(debtor);
@@ -625,18 +629,20 @@ library AaveV2Helpers {
     }
 
     function _withdraw(
-        VM vm,
+        Vm vm,
         address whoWithdraws,
         address to,
         address asset,
         uint256 amount,
-        address aToken
+        address aToken,
+        string memory marketName
     ) internal {
+        Market memory market = AaveAddressBookV2.getMarket(marketName);
         uint256 aTokenBefore = IERC20(aToken).balanceOf(whoWithdraws);
         vm.deal(whoWithdraws, 1 ether);
         vm.startPrank(whoWithdraws);
 
-        POOL.withdraw(asset, amount, to);
+        market.POOL.withdraw(asset, amount, to);
         vm.stopPrank();
         uint256 aTokenAfter = IERC20(aToken).balanceOf(whoWithdraws);
 
@@ -650,12 +656,10 @@ library AaveV2Helpers {
     function _validateAssetSourceOnOracle(address asset, address expectedSource)
         external
     {
-        IAaveOracle oracle = IAaveOracle(
-            IAddressesProvider(ADDRESSES_PROVIDER).getPriceOracle()
-        );
+        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
 
         require(
-            oracle.getSourceOfAsset(asset) == expectedSource,
+            market.ORACLE.getSourceOfAsset(asset) == expectedSource,
             "_validateAssetSourceOnOracle() : INVALID_PRICE_SOURCE"
         );
     }
