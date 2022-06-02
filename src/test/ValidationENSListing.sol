@@ -2,9 +2,9 @@
 pragma solidity 0.8.11;
 
 import "forge-std/Test.sol";
+import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
-import {AaveAddressBookV2} from '../AaveAddressBookV2.sol';
 
 import {ENSListingPayload} from "../ENSListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";

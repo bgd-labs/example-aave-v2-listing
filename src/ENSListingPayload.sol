@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-// todo: should obviously be from lib
-import { AaveAddressBookV2, Market } from './AaveAddressBookV2.sol';
+import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
 
 interface Initializable {
     function initialize(
