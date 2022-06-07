@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-import { AaveV2Eth, Token } from 'aave-address-book/libs/AaveV2Eth.sol';
+import { AaveV2Ethereum } from 'aave-address-book/AaveAddressBook.sol';
 
 interface Initializable {
     function initialize(
@@ -42,9 +42,9 @@ contract ENSListingPayload is IProposalGenericExecutor {
         address[] memory sources = new address[](1);
         sources[0] = FEED_ENS_USD_TO_ENS_ETH;
 
-        AaveV2Eth.ORACLE.setAssetSources(assets, sources);
+        AaveV2Ethereum.ORACLE.setAssetSources(assets, sources);
 
-        AaveV2Eth.POOL_CONFIGURATOR.initReserve(
+        AaveV2Ethereum.POOL_CONFIGURATOR.initReserve(
             ATOKEN_IMPL,
             STABLE_DEBT_IMPL,
             VARIABLE_DEBT_IMPL,
@@ -52,9 +52,9 @@ contract ENSListingPayload is IProposalGenericExecutor {
             INTEREST_RATE_STRATEGY
         );
 
-        AaveV2Eth.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
-        AaveV2Eth.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
-        AaveV2Eth.POOL_CONFIGURATOR.configureReserveAsCollateral(
+        AaveV2Ethereum.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
+        AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
+        AaveV2Ethereum.POOL_CONFIGURATOR.configureReserveAsCollateral(
             ENS,
             LTV,
             LIQUIDATION_THRESHOLD,

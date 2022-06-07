@@ -3,8 +3,8 @@ pragma solidity 0.8.11;
 
 import "forge-std/Vm.sol";
 import "forge-std/console.sol";
-import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
-import { TokenData } from 'aave-address-book/libs/AaveV2.sol';
+import { AaveAddressBookV2, Market } from 'aave-address-book/AaveAddressBookV2.sol';
+import { TokenData } from 'aave-address-book/AaveV2.sol';
 
 import {IERC20} from "../../interfaces/IERC20.sol";
 
@@ -648,10 +648,10 @@ library AaveV2Helpers {
         );
     }
 
-    function _validateAssetSourceOnOracle(address asset, address expectedSource)
+    function _validateAssetSourceOnOracle(address asset, address expectedSource, string memory marketName)
         external
     {
-        Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Eth);
+        Market memory market = AaveAddressBookV2.getMarket(marketName);
 
         require(
             market.ORACLE.getSourceOfAsset(asset) == expectedSource,

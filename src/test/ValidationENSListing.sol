@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 import "forge-std/Test.sol";
-import { AaveAddressBookV2, Market } from 'aave-address-book/libs/AaveAddressBookV2.sol';
+import { AaveAddressBookV2, Market } from 'aave-address-book/AaveAddressBookV2.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
@@ -26,7 +26,7 @@ contract ValidationENSListing is Test {
         0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
 
     // can't be constant for some reason
-    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Eth; 
+    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Ethereum; 
 
     function setUp() public {}
 
@@ -134,7 +134,8 @@ contract ValidationENSListing is Test {
 
         AaveV2Helpers._validateAssetSourceOnOracle(
             ENS,
-            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH()
+            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH(),
+            MARKET_NAME
         );
 
         _validatePoolActionsPostListing(allConfigsAfter);
