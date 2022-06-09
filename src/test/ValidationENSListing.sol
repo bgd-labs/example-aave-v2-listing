@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
-import {BaseTest} from "./base/BaseTest.sol";
+
+import "forge-std/Test.sol";
+import { AaveAddressBookV2, Market } from 'aave-address-book/AaveAddressBookV2.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
 import {ENSListingPayload} from "../ENSListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
-contract ValidationENSListing is BaseTest {
+contract ValidationENSListing is Test {
     address internal constant AAVE_WHALE =
         0x25F2226B597E8F9514B3F68F00f494cF4f286491;
 
@@ -23,6 +25,9 @@ contract ValidationENSListing is BaseTest {
     address public constant ENS_WHALE =
         0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
 
+    // can't be constant for some reason
+    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Ethereum; 
+
     function setUp() public {}
 
     /// @dev Uses an already deployed payload on the target network
@@ -33,7 +38,7 @@ contract ValidationENSListing is BaseTest {
 
     function _testProposal(address payload) internal {
         ReserveConfig[] memory allConfigsBefore = AaveV2Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(false, MARKET_NAME);
 
         address[] memory targets = new address[](1);
         targets[0] = payload;
@@ -63,7 +68,7 @@ contract ValidationENSListing is BaseTest {
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
 
         ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(false, MARKET_NAME);
 
         AaveV2Helpers._validateCountOfListings(
             1,
@@ -101,13 +106,13 @@ contract ValidationENSListing is BaseTest {
             InterestStrategyValues({
                 excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
                 optimalUtilization: 45 * (AaveV2Helpers.RAY / 100),
-                addressesProvider: AaveV2Helpers.ADDRESSES_PROVIDER,
                 baseVariableBorrowRate: 0,
                 stableRateSlope1: 0,
                 stableRateSlope2: 0,
                 variableRateSlope1: 7 * (AaveV2Helpers.RAY / 100),
                 variableRateSlope2: 300 * (AaveV2Helpers.RAY / 100)
-            })
+            }),
+            MARKET_NAME
         );
 
         AaveV2Helpers._noReservesConfigsChangesApartNewListings(
@@ -123,12 +128,14 @@ contract ValidationENSListing is BaseTest {
                 stableDebtToken: ENSListingPayload(payload).STABLE_DEBT_IMPL(),
                 variableDebtToken: ENSListingPayload(payload)
                     .VARIABLE_DEBT_IMPL()
-            })
+            }),
+            MARKET_NAME
         );
 
         AaveV2Helpers._validateAssetSourceOnOracle(
             ENS,
-            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH()
+            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH(),
+            MARKET_NAME
         );
 
         _validatePoolActionsPostListing(allConfigsAfter);
@@ -146,7 +153,8 @@ contract ValidationENSListing is BaseTest {
             true,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .aToken
+                .aToken,
+            MARKET_NAME
         );
         AaveV2Helpers._deposit(
             vm,
@@ -157,7 +165,8 @@ contract ValidationENSListing is BaseTest {
             true,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "AAVE", false)
-                .aToken
+                .aToken,
+            MARKET_NAME
         );
 
         AaveV2Helpers._borrow(
@@ -169,7 +178,8 @@ contract ValidationENSListing is BaseTest {
             2,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "DAI", false)
-                .variableDebtToken
+                .variableDebtToken,
+            MARKET_NAME
         );
 
         AaveV2Helpers._borrow(
@@ -181,7 +191,8 @@ contract ValidationENSListing is BaseTest {
             2,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .variableDebtToken
+                .variableDebtToken,
+            MARKET_NAME
         );
 
         try
@@ -194,7 +205,8 @@ contract ValidationENSListing is BaseTest {
                 1,
                 AaveV2Helpers
                     ._findReserveConfig(allReservesConfigs, "ENS", false)
-                    .stableDebtToken
+                    .stableDebtToken,
+                MARKET_NAME
             )
         {
             revert("_testProposal() : STABLE_BORROW_NOT_REVERTING");
@@ -216,7 +228,8 @@ contract ValidationENSListing is BaseTest {
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
                 .variableDebtToken,
-            true
+            true,
+            MARKET_NAME
         );
 
         vm.startPrank(DAI_WHALE);
@@ -233,7 +246,8 @@ contract ValidationENSListing is BaseTest {
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .variableDebtToken,
-            true
+            true,
+            MARKET_NAME
         );
 
         AaveV2Helpers._withdraw(
@@ -244,7 +258,8 @@ contract ValidationENSListing is BaseTest {
             type(uint256).max,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "ENS", false)
-                .aToken
+                .aToken,
+            MARKET_NAME
         );
     }
 }
