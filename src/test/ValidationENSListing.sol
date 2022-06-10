@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 import "forge-std/Test.sol";
-import { AaveAddressBookV2, Market } from 'aave-address-book/AaveAddressBookV2.sol';
+import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBook.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
