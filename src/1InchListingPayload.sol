@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-//import { AToken } from  "./AToken.sol";
+import "forge-std/console.sol";
 
 interface Initializable {
     function initialize(
@@ -65,19 +65,26 @@ contract OneInchListingPayload is IProposalGenericExecutor {
     address public constant FEED_ONEINCH_ETH =
         0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8;
 
-    address public constant ATOKEN_IMPL =
-        0x412Bf60251b157b93Ac031940505565394f3a46A;
-    address public constant VARIABLE_DEBT_IMPL =
-        0xd4b8690096Bb2C63429a064973DB829639130E03;
-    address public constant STABLE_DEBT_IMPL =
-        0x5Ed481ED4882053bB845d0b7381E41677219845C;
-    address public constant INTEREST_RATE_STRATEGY =
-        0x05B794C0b2fc65988e88ae7794D797AFd84Ab9f7;
+    address public ATOKEN_IMPL;
+    address public VARIABLE_DEBT_IMPL;
+    address public STABLE_DEBT_IMPL;
+    address public INTEREST_RATE_STRATEGY;
 
     uint256 public constant RESERVE_FACTOR = 2000;
     uint256 public constant LTV = 5000;
     uint256 public constant LIQUIDATION_THRESHOLD = 6000;
     uint256 public constant LIQUIDATION_BONUS = 10800;
+
+    constructor (address atoken, address vardebt, address stadebt, address intRateStrat) public {
+        ATOKEN_IMPL = atoken;
+        VARIABLE_DEBT_IMPL = vardebt;
+        STABLE_DEBT_IMPL = stadebt;
+        INTEREST_RATE_STRATEGY = intRateStrat;
+        console.log("iatoken ", ATOKEN_IMPL);
+        console.log("istable ", STABLE_DEBT_IMPL);
+        console.log("ivar ", VARIABLE_DEBT_IMPL);
+        console.log("iintratestrat ", INTEREST_RATE_STRATEGY);
+    }
 
     function execute() external override {
         IPriceOracle PRICE_ORACLE = IPriceOracle(
