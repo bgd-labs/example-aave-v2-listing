@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.11;
 
-import "forge-std/console.sol";
-
 interface Initializable {
     function initialize(
         uint8 underlyingAssetDecimals,
@@ -65,25 +63,21 @@ contract OneInchListingPayload is IProposalGenericExecutor {
     address public constant FEED_ONEINCH_ETH =
         0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8;
 
-    address public ATOKEN_IMPL;
-    address public VARIABLE_DEBT_IMPL;
-    address public STABLE_DEBT_IMPL;
-    address public INTEREST_RATE_STRATEGY;
+    address public immutable ATOKEN_IMPL;
+    address public immutable VARIABLE_DEBT_IMPL;
+    address public immutable STABLE_DEBT_IMPL;
+    address public immutable INTEREST_RATE_STRATEGY;
 
     uint256 public constant RESERVE_FACTOR = 2000;
-    uint256 public constant LTV = 5000;
-    uint256 public constant LIQUIDATION_THRESHOLD = 6000;
-    uint256 public constant LIQUIDATION_BONUS = 10800;
+    uint256 public constant LTV = 6000;
+    uint256 public constant LIQUIDATION_THRESHOLD = 7500;
+    uint256 public constant LIQUIDATION_BONUS = 10750;
 
     constructor (address atoken, address vardebt, address stadebt, address intRateStrat) public {
         ATOKEN_IMPL = atoken;
         VARIABLE_DEBT_IMPL = vardebt;
         STABLE_DEBT_IMPL = stadebt;
         INTEREST_RATE_STRATEGY = intRateStrat;
-        console.log("iatoken ", ATOKEN_IMPL);
-        console.log("istable ", STABLE_DEBT_IMPL);
-        console.log("ivar ", VARIABLE_DEBT_IMPL);
-        console.log("iintratestrat ", INTEREST_RATE_STRATEGY);
     }
 
     function execute() external override {
@@ -123,17 +117,17 @@ contract OneInchListingPayload is IProposalGenericExecutor {
         // We initialize the different implementations, for security reasons
         Initializable(ATOKEN_IMPL).initialize(
             uint8(18),
-            "Aave interest bearing 1Inch",
+            "Aave interest bearing 1INCH",
             "a1INCH"
         );
         Initializable(VARIABLE_DEBT_IMPL).initialize(
             uint8(18),
-            "Aave variable debt bearing 1Inch",
+            "Aave variable debt bearing 1INCH",
             "variableDebt1INCH"
         );
         Initializable(STABLE_DEBT_IMPL).initialize(
             uint8(18),
-            "Aave stable debt bearing 1Inch",
+            "Aave stable debt bearing 1INCH",
             "stableDebt1INCH"
         );
     }
