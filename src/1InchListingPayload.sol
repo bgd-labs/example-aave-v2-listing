@@ -69,9 +69,9 @@ contract OneInchListingPayload is IProposalGenericExecutor {
     address public immutable INTEREST_RATE_STRATEGY;
 
     uint256 public constant RESERVE_FACTOR = 2000;
-    uint256 public constant LTV = 6000;
-    uint256 public constant LIQUIDATION_THRESHOLD = 7500;
-    uint256 public constant LIQUIDATION_BONUS = 10750;
+    uint256 public constant LTV = 5500;
+    uint256 public constant LIQUIDATION_THRESHOLD = 6500;
+    uint256 public constant LIQUIDATION_BONUS = 11000;
 
     constructor (address atoken, address vardebt, address stadebt, address intRateStrat) public {
         ATOKEN_IMPL = atoken;

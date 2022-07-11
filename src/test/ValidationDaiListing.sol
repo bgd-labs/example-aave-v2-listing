@@ -7,18 +7,18 @@ import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBookV2.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
-import {OneInchListingPayload} from "../1InchListingPayload.sol";
+import {DaiListingPayload} from "../DaiListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
-contract Validation1InchListing is Test {
+contract ValidationDaiListing is Test {
     address internal constant AAVE_WHALE =
         0x25F2226B597E8F9514B3F68F00f494cF4f286491;
 
     address internal constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
-    address internal constant ONEINCH = 0x111111111117dC0aa78b770fA6A738034120C302;
+    address internal constant ASSET = 0x111111111117dC0aa78b770fA6A738034120C302;
 
-    uint8 public constant ONEINCH_DECIMALS = 18;
+    uint8 public constant ASSET_DECIMALS = 18;
 
     address internal constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
@@ -30,93 +30,53 @@ contract Validation1InchListing is Test {
 
     address internal constant INCENTIVES_CONTROLLER = address(0);
 
-    string internal constant ATOKEN_NAME = "Aave interest bearing 1INCH";
+    // string internal constant ATOKEN_NAME = "Aave interest bearing 1INCH";
 
-    string internal constant ATOKEN_SYMBOL = "a1INCH";
+    // string internal constant ATOKEN_SYMBOL = "a1INCH";
 
-    string internal constant STABLE_DEBT_TOKEN_NAME = "Aave stable debt bearing 1INCH";
+    // string internal constant STABLE_DEBT_TOKEN_NAME = "Aave stable debt bearing 1INCH";
 
-    string internal constant STABLE_DEBT_TOKEN_SYMBOL = "stableDebt1INCH";
+    // string internal constant STABLE_DEBT_TOKEN_SYMBOL = "stableDebt1INCH";
 
-    string internal constant VARIABLE_DEBT_TOKEN_NAME = "Aave variable debt bearing 1INCH";
+    // string internal constant VARIABLE_DEBT_TOKEN_NAME = "Aave variable debt bearing 1INCH";
     
-    string internal constant VARIABLE_DEBT_TOKEN_SYMBOL = "variableDebt1INCH";
+    // string internal constant VARIABLE_DEBT_TOKEN_SYMBOL = "variableDebt1INCH";
 
     address internal constant DAI_WHALE =
         0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
 
-    address public constant ONEINCH_WHALE =
+    address public constant ASSET_WHALE =
         0x2f3Fa8b85fbD0e29BD0b4E68032F61421782BDF0;
 
     // can't be constant for some reason
-    string internal MARKET_NAME = "AaveV2Ethereum";
+    string internal MARKET_NAME = AaveAddressBookV2.AaveV2EthereumArc;
 
     // artifacts
-    string internal constant aTokenArtifact = "AToken.sol:AToken";
-    string internal constant stableDebtArtifact = "stableDebt.sol:StableDebtToken";
-    string internal constant variableDebtArtifact = "varDebt.sol:VariableDebtToken";
-    string internal constant interestRateStrategyArtifact = "interestRateStrat.sol:DefaultReserveInterestRateStrategy";
+    // string internal constant aTokenArtifact = "AToken.sol:AToken";
+    // string internal constant stableDebtArtifact = "stableDebt.sol:StableDebtToken";
+    // string internal constant variableDebtArtifact = "varDebt.sol:VariableDebtToken";
+    // string internal constant interestRateStrategyArtifact = "interestRateStrat.sol:DefaultReserveInterestRateStrategy";
 
 
-    uint256 internal constant OPTIMAL_UTILIZATION_RATE = 450000000000000000000000000;
+    // uint256 internal constant OPTIMAL_UTILIZATION_RATE = 450000000000000000000000000;
 
-    uint256 internal constant BASE_VARIABLE_BORROW_RATE = 0;
+    // uint256 internal constant BASE_VARIABLE_BORROW_RATE = 0;
 
-    uint256 internal constant VARIABLE_RATE_SLOPE_1 = 70000000000000000000000000;
+    // uint256 internal constant VARIABLE_RATE_SLOPE_1 = 70000000000000000000000000;
 
-    uint256 internal constant VARIABLE_RATE_SLOPE_2 = 3000000000000000000000000000;
+    // uint256 internal constant VARIABLE_RATE_SLOPE_2 = 3000000000000000000000000000;
 
-    uint256 internal constant STABLE_RATE_SLOPE_1 = 100000000000000000000000000;
+    // uint256 internal constant STABLE_RATE_SLOPE_1 = 100000000000000000000000000;
 
-    uint256 internal constant STABLE_RATE_SLOPE_2 = 3000000000000000000000000000;
+    // uint256 internal constant STABLE_RATE_SLOPE_2 = 3000000000000000000000000000;
 
     function setUp() public {}
 
     /// @dev Uses an already deployed payload on the target network
     function testProposalPostPayload() public {
-        /// deploy atoken and such
-        address aToken = deployCode(aTokenArtifact, abi.encode(
-            POOL,
-            ONEINCH,
-            RESERVE_TREASURY_ADDRESS,
-            ATOKEN_NAME,
-            ATOKEN_SYMBOL,
-            INCENTIVES_CONTROLLER
-        ));
-
-        address stableDebt = deployCode(stableDebtArtifact, abi.encode(
-            POOL,
-            ONEINCH,
-            STABLE_DEBT_TOKEN_NAME,
-            STABLE_DEBT_TOKEN_SYMBOL,
-            INCENTIVES_CONTROLLER
-        ));
-
-        address varDebt = deployCode(variableDebtArtifact, abi.encode(
-            POOL,
-            ONEINCH,
-            VARIABLE_DEBT_TOKEN_NAME,
-            VARIABLE_DEBT_TOKEN_SYMBOL,
-            INCENTIVES_CONTROLLER
-        ));
-
-        address intRateStrat = deployCode(interestRateStrategyArtifact, abi.encode(
-            LENDING_POOL_ADDRESSES_PROVIDER,
-            OPTIMAL_UTILIZATION_RATE,
-            BASE_VARIABLE_BORROW_RATE,
-            VARIABLE_RATE_SLOPE_1,
-            VARIABLE_RATE_SLOPE_2,
-            STABLE_RATE_SLOPE_1,
-            STABLE_RATE_SLOPE_2
-        ));
-
-        console.log("atoken ", aToken);
-        console.log("stable ", stableDebt);
-        console.log("var ", varDebt);
-        console.log("intratestrat ", intRateStrat);
         /// deploy payload
-        OneInchListingPayload one = new OneInchListingPayload(aToken, varDebt, stableDebt, intRateStrat);
-        address payload = address(one);
+        DaiListingPayload dai = new DaiListingPayload();
+        address payload = address(dai);
         _testProposal(payload);
     }
 
@@ -162,7 +122,7 @@ contract Validation1InchListing is Test {
 
         ReserveConfig memory expectedEnsConfig = ReserveConfig({
             symbol: "1INCH",
-            underlying: ONEINCH,
+            underlying: ASSET,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
@@ -185,7 +145,7 @@ contract Validation1InchListing is Test {
         );
 
         AaveV2Helpers._validateInterestRateStrategy(
-            ONEINCH,
+            ASSET,
             OneInchListingPayload(payload).INTEREST_RATE_STRATEGY(),
             InterestStrategyValues({
                 excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
@@ -217,7 +177,7 @@ contract Validation1InchListing is Test {
         );
 
         AaveV2Helpers._validateAssetSourceOnOracle(
-            ONEINCH,
+            ASSET,
             OneInchListingPayload(payload).FEED_ONEINCH_ETH(),
             MARKET_NAME
         );
@@ -230,9 +190,9 @@ contract Validation1InchListing is Test {
     ) internal {
         AaveV2Helpers._deposit(
             vm,
-            ONEINCH_WHALE,
-            ONEINCH_WHALE,
-            ONEINCH,
+            ASSET_WHALE,
+            ASSET_WHALE,
+            ASSET,
             666 ether,
             true,
             AaveV2Helpers
@@ -255,8 +215,8 @@ contract Validation1InchListing is Test {
 
         AaveV2Helpers._borrow(
             vm,
-            ONEINCH_WHALE,
-            ONEINCH_WHALE,
+            ASSET_WHALE,
+            ASSET_WHALE,
             DAI,
             10 ether,
             2,
@@ -270,7 +230,7 @@ contract Validation1InchListing is Test {
             vm,
             AAVE_WHALE,
             AAVE_WHALE,
-            ONEINCH,
+            ASSET,
             10 ether,
             2,
             AaveV2Helpers
@@ -284,7 +244,7 @@ contract Validation1InchListing is Test {
                 vm,
                 AAVE_WHALE,
                 AAVE_WHALE,
-                ONEINCH,
+                ASSET,
                 10 ether,
                 1,
                 AaveV2Helpers
@@ -306,7 +266,7 @@ contract Validation1InchListing is Test {
             vm,
             AAVE_WHALE,
             AAVE_WHALE,
-            ONEINCH,
+            ASSET,
             type(uint256).max,
             2,
             AaveV2Helpers
@@ -317,15 +277,15 @@ contract Validation1InchListing is Test {
         );
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAI).transfer(ONEINCH_WHALE, 300 ether);
+        IERC20(DAI).transfer(ASSET_WHALE, 300 ether);
         vm.stopPrank();
 
         AaveV2Helpers._repay(
             vm,
-            ONEINCH_WHALE,
-            ONEINCH_WHALE,
+            ASSET_WHALE,
+            ASSET_WHALE,
             DAI,
-            IERC20(DAI).balanceOf(ONEINCH_WHALE),
+            IERC20(DAI).balanceOf(ASSET_WHALE),
             2,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "DAI", false)
@@ -336,9 +296,9 @@ contract Validation1InchListing is Test {
 
         AaveV2Helpers._withdraw(
             vm,
-            ONEINCH_WHALE,
-            ONEINCH_WHALE,
-            ONEINCH,
+            ASSET_WHALE,
+            ASSET_WHALE,
+            ASSET,
             type(uint256).max,
             AaveV2Helpers
                 ._findReserveConfig(allReservesConfigs, "1INCH", false)
