@@ -7,7 +7,7 @@ import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBookV2.sol';
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
-import {DaiListingPayload} from "../DaiListingPayload.sol";
+import {ArcDaiListingPayload} from "../ArcDaiListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
 contract ValidationDaiListing is Test {
@@ -16,17 +16,17 @@ contract ValidationDaiListing is Test {
 
     address internal constant AAVE = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
-    address internal constant ASSET = 0x111111111117dC0aa78b770fA6A738034120C302;
+    address internal constant ASSET = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
     uint8 public constant ASSET_DECIMALS = 18;
 
     address internal constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
-    address internal constant POOL = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9;
+    address internal POOL = address(AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2EthereumArc).POOL);
 
     address internal constant RESERVE_TREASURY_ADDRESS = 0x464C71f6c2F760DdA6093dCB91C24c39e5d6e18c;
 
-    address internal constant LENDING_POOL_ADDRESSES_PROVIDER = 0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5;
+    address internal LENDING_POOL_ADDRESSES_PROVIDER = address(AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2EthereumArc).POOL_ADDRESSES_PROVIDER);
 
     address internal constant INCENTIVES_CONTROLLER = address(0);
 
@@ -46,7 +46,7 @@ contract ValidationDaiListing is Test {
         0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
 
     address public constant ASSET_WHALE =
-        0x2f3Fa8b85fbD0e29BD0b4E68032F61421782BDF0;
+        0x12e1062d629DCf98D17cA5615e766ADa53945bf3;
 
     // can't be constant for some reason
     string internal MARKET_NAME = AaveAddressBookV2.AaveV2EthereumArc;
@@ -75,7 +75,7 @@ contract ValidationDaiListing is Test {
     /// @dev Uses an already deployed payload on the target network
     function testProposalPostPayload() public {
         /// deploy payload
-        DaiListingPayload dai = new DaiListingPayload();
+        ArcDaiListingPayload dai = new ArcDaiListingPayload();
         address payload = address(dai);
         _testProposal(payload);
     }
@@ -89,7 +89,7 @@ contract ValidationDaiListing is Test {
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         string[] memory signatures = new string[](1);
-        signatures[0] = "execute()";
+        signatures[0] = "executeQueueTimelock()";
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = "";
         bool[] memory withDelegatecalls = new bool[](1);
@@ -99,7 +99,7 @@ contract ValidationDaiListing is Test {
             vm,
             AAVE_WHALE,
             IAaveGov.SPropCreateParams({
-                executor: AaveGovHelpers.SHORT_EXECUTOR,
+                executor: AaveGovHelpers.ARC_SHORT_EXECUTOR,
                 targets: targets,
                 values: values,
                 signatures: signatures,
@@ -111,6 +111,8 @@ contract ValidationDaiListing is Test {
 
         AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
 
+        AaveGovHelpers._executeArcTimelock(vm);
+
         ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
             ._getReservesConfigs(false, MARKET_NAME);
 
@@ -121,20 +123,20 @@ contract ValidationDaiListing is Test {
         );
 
         ReserveConfig memory expectedEnsConfig = ReserveConfig({
-            symbol: "1INCH",
+            symbol: "DAI",
             underlying: ASSET,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 5500,
-            liquidationThreshold: 6500,
-            liquidationBonus: 11000,
-            reserveFactor: 2000,
+            ltv: 7700,
+            liquidationThreshold: 8000,
+            liquidationBonus: 10500,
+            reserveFactor: 1000,
             usageAsCollateralEnabled: true,
             borrowingEnabled: true,
-            interestRateStrategy: OneInchListingPayload(payload).INTEREST_RATE_STRATEGY(),
-            stableBorrowRateEnabled: false,
+            interestRateStrategy: ArcDaiListingPayload(payload).INTEREST_RATE_STRATEGY(),
+            stableBorrowRateEnabled: true,
             isActive: true,
             isFrozen: false
         });
@@ -146,15 +148,15 @@ contract ValidationDaiListing is Test {
 
         AaveV2Helpers._validateInterestRateStrategy(
             ASSET,
-            OneInchListingPayload(payload).INTEREST_RATE_STRATEGY(),
+            ArcDaiListingPayload(payload).INTEREST_RATE_STRATEGY(),
             InterestStrategyValues({
-                excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
-                optimalUtilization: 45 * (AaveV2Helpers.RAY / 100),
+                excessUtilization: 20 * (AaveV2Helpers.RAY / 100),
+                optimalUtilization: 80 * (AaveV2Helpers.RAY / 100),
                 baseVariableBorrowRate: 0,
-                stableRateSlope1: 100000000000000000000000000,
-                stableRateSlope2: 3000000000000000000000000000,
-                variableRateSlope1: 7 * (AaveV2Helpers.RAY / 100),
-                variableRateSlope2: 300 * (AaveV2Helpers.RAY / 100)
+                stableRateSlope1: 20000000000000000000000000,
+                stableRateSlope2: 750000000000000000000000000,
+                variableRateSlope1: 4 * (AaveV2Helpers.RAY / 100),
+                variableRateSlope2: 75 * (AaveV2Helpers.RAY / 100)
             }),
             MARKET_NAME
         );
@@ -166,11 +168,11 @@ contract ValidationDaiListing is Test {
 
         AaveV2Helpers._validateReserveTokensImpls(
             vm,
-            AaveV2Helpers._findReserveConfig(allConfigsAfter, "1INCH", false),
+            AaveV2Helpers._findReserveConfig(allConfigsAfter, "DAI", false),
             ReserveTokens({
-                aToken: OneInchListingPayload(payload).ATOKEN_IMPL(),
-                stableDebtToken: OneInchListingPayload(payload).STABLE_DEBT_IMPL(),
-                variableDebtToken: OneInchListingPayload(payload)
+                aToken: ArcDaiListingPayload(payload).ATOKEN_IMPL(),
+                stableDebtToken: ArcDaiListingPayload(payload).STABLE_DEBT_IMPL(),
+                variableDebtToken: ArcDaiListingPayload(payload)
                     .VARIABLE_DEBT_IMPL()
             }),
             MARKET_NAME
@@ -178,7 +180,7 @@ contract ValidationDaiListing is Test {
 
         AaveV2Helpers._validateAssetSourceOnOracle(
             ASSET,
-            OneInchListingPayload(payload).FEED_ONEINCH_ETH(),
+            ArcDaiListingPayload(payload).FEED_DAI_ETH(),
             MARKET_NAME
         );
 
@@ -196,7 +198,7 @@ contract ValidationDaiListing is Test {
             666 ether,
             true,
             AaveV2Helpers
-                ._findReserveConfig(allReservesConfigs, "1INCH", false)
+                ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .aToken,
             MARKET_NAME
         );
@@ -234,7 +236,7 @@ contract ValidationDaiListing is Test {
             10 ether,
             2,
             AaveV2Helpers
-                ._findReserveConfig(allReservesConfigs, "1INCH", false)
+                ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .variableDebtToken,
             MARKET_NAME
         );
@@ -248,7 +250,7 @@ contract ValidationDaiListing is Test {
                 10 ether,
                 1,
                 AaveV2Helpers
-                    ._findReserveConfig(allReservesConfigs, "1INCH", false)
+                    ._findReserveConfig(allReservesConfigs, "DAI", false)
                     .stableDebtToken,
                 MARKET_NAME
             )
@@ -270,7 +272,7 @@ contract ValidationDaiListing is Test {
             type(uint256).max,
             2,
             AaveV2Helpers
-                ._findReserveConfig(allReservesConfigs, "1INCH", false)
+                ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .variableDebtToken,
             true,
             MARKET_NAME
@@ -301,7 +303,7 @@ contract ValidationDaiListing is Test {
             ASSET,
             type(uint256).max,
             AaveV2Helpers
-                ._findReserveConfig(allReservesConfigs, "1INCH", false)
+                ._findReserveConfig(allReservesConfigs, "DAI", false)
                 .aToken,
             MARKET_NAME
         );

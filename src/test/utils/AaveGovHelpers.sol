@@ -72,12 +72,31 @@ interface IAaveGov {
         returns (ProposalState);
 }
 
+interface IArcTimelock {
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        string[] memory signatures,
+        bytes[] memory calldatas,
+        bool[] memory withDelegatecalls
+    ) external;
+
+    function getActionsSetCount() external returns (uint256);
+    
+    function execute(uint256) external payable;
+}
+
 library AaveGovHelpers {
     IAaveGov internal constant GOV =
         IAaveGov(0xEC568fffba86c094cf06b22134B23074DFE2252c);
 
     address constant SHORT_EXECUTOR =
         0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
+
+    address constant ARC_SHORT_EXECUTOR =
+        0xEE56e2B3D491590B5b31738cC34d5232F378a8D5;
+
+    IArcTimelock constant arcTimelock = IArcTimelock(0xAce1d11d836cb3F51Ef658FD4D353fFb3c301218);
 
     function _createProposal(
         Vm vm,
@@ -115,5 +134,11 @@ library AaveGovHelpers {
         vm.warp(executionTime + 1);
         GOV.execute(proposalId);
         vm.stopPrank();
+    }
+
+    function _executeArcTimelock(Vm vm) public {
+        vm.warp(block.timestamp + 172800);
+        uint actionNum = arcTimelock.getActionsSetCount() - 1;
+        arcTimelock.execute(actionNum);
     }
 }

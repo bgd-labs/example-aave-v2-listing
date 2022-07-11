@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity 0.8.10;
+pragma solidity 0.8.11;
 
 import { IArcTimelock } from  "src/interfaces/IArcTimelock.sol";
 import { ILendingPoolConfigurator } from "src/interfaces/ILendingPoolConfigurator.sol";
@@ -7,10 +7,10 @@ import { ILendingPoolAddressesProvider } from "src/interfaces/ILendingPoolAddres
 import { IPriceOracle } from "src/interfaces/IPriceOracle.sol";
 import { IEcosystemReserveController } from "src/interfaces/IEcosystemReserveController.sol";
 
-/// @title ArcDaiProposalPayload
+/// @title ArcDaiListingPayload
 /// @author Governance House
 /// @notice Add DAI as Collateral on the Aave ARC Market
-contract ArcDaiProposalPayload {
+contract ArcDaiListingPayload {
 
     /// @notice AAVE ARC LendingPoolConfigurator
     ILendingPoolConfigurator constant configurator = ILendingPoolConfigurator(0x4e1c7865e7BE78A7748724Fa0409e88dc14E67aA);
