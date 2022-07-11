@@ -3,8 +3,8 @@ pragma solidity 0.8.11;
 
 import "forge-std/Test.sol";
 import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBook.sol';
+import { GovHelpers, IAaveGov } from "aave-helpers/GovHelpers.sol";
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
-import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 
 import {ENSListingPayload} from "../ENSListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
@@ -51,11 +51,10 @@ contract ValidationENSListing is Test {
         bool[] memory withDelegatecalls = new bool[](1);
         withDelegatecalls[0] = true;
 
-        uint256 proposalId = AaveGovHelpers._createProposal(
+        uint256 proposalId = GovHelpers.createProposal(
             vm,
-            AAVE_WHALE,
             IAaveGov.SPropCreateParams({
-                executor: AaveGovHelpers.SHORT_EXECUTOR,
+                executor: GovHelpers.SHORT_EXECUTOR,
                 targets: targets,
                 values: values,
                 signatures: signatures,
@@ -65,7 +64,7 @@ contract ValidationENSListing is Test {
             })
         );
 
-        AaveGovHelpers._passVote(vm, AAVE_WHALE, proposalId);
+        GovHelpers.passVoteAndExecute(vm, proposalId);
 
         ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
             ._getReservesConfigs(false, MARKET_NAME);
