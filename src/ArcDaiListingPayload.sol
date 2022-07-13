@@ -47,7 +47,7 @@ contract ArcDaiListingPayload {
     address public constant STABLE_DEBT_IMPL =
         0x71c60e94C10d90D0386BaC547378c136cb6aD2b4;
     address public constant INTEREST_RATE_STRATEGY =
-        0xda940a94a44dcE234c74a1fa72A591805e0F5559;
+        0x81D7Bb11D682005B3Fca0Ef48381263BeC9b2d1C; // 0xda940a94a44dcE234c74a1fa72A591805e0F5559;
 
     /// @notice DAI token
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;

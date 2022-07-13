@@ -10,6 +10,87 @@ import {AaveGovHelpers, IAaveGov} from "./utils/AaveGovHelpers.sol";
 import {ArcDaiListingPayload} from "../ArcDaiListingPayload.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 
+interface IPermissionManager {
+  event RoleSet(address indexed user, uint256 indexed role, address indexed whiteLister, bool set);
+  event PermissionsAdminSet(address indexed user, bool set);
+
+  /**
+   * @dev Allows owner to add new permission admins
+   * @param admins The addresses to promote to permission admin
+   **/
+  function addPermissionAdmins(address[] calldata admins) external;
+
+  /**
+   * @dev Allows owner to remove permission admins
+   * @param admins The addresses to demote as permission admin
+   **/
+  function removePermissionAdmins(address[] calldata admins) external;
+
+  /**
+   * @dev Allows owner to whitelist a set of addresses for multiple roles
+   * @param roles The list of roles to assign
+   * @param users The list of users to add to the corresponding role
+   **/
+  function addPermissions(uint256[] calldata roles, address[] calldata users) external;
+
+  /**
+   * @dev Allows owner to remove permissions on a set of addresses
+   * @param roles The list of roles to remove
+   * @param users The list of users to remove from the corresponding role
+   **/
+  function removePermissions(uint256[] calldata roles, address[] calldata users) external;
+
+  /**
+   * @dev Returns the permissions configuration for a specific user
+   * @param user The address of the user
+   * @return the set of permissions states for the user
+   **/
+  function getUserPermissions(address user) external view returns (uint256[] memory, uint256);
+
+  /**
+   * @dev Used to query if a certain user has a certain role
+   * @param user The address of the user
+   * @return True if the user is in the specific role
+   **/
+  function isInRole(address user, uint256 role) external view returns (bool);
+
+  /**
+   * @dev Used to query if a certain user has the permissions admin role
+   * @param user The address of the user
+   * @return True if the user is a permissions admin, false otherwise
+   **/
+  function isPermissionsAdmin(address user) external view returns (bool);
+
+  /**
+   * @dev Used to query if a certain user satisfies certain roles
+   * @param user The address of the user
+   * @param roles The roles to check
+   * @return True if the user has all the roles, false otherwise
+   **/
+  function isInAllRoles(address user, uint256[] calldata roles) external view returns (bool);
+
+  /**
+   * @dev Used to query if a certain user is in at least one of the roles specified
+   * @param user The address of the user
+   * @return True if the user has all the roles, false otherwise
+   **/
+  function isInAnyRole(address user, uint256[] calldata roles) external view returns (bool);
+
+  /**
+   * @dev Used to query if a certain user is in at least one of the roles specified
+   * @param user The address of the user
+   * @return the address of the permissionAdmin of the user
+   **/
+  function getUserPermissionAdmin(address user) external view returns (address);
+
+  /**
+   * @dev Used to query if the permission admin of a certain user is valid
+   * @param user The address of the user
+   * @return true if the permission admin of user is valid, false otherwise
+   **/
+  function isUserPermissionAdminValid(address user) external view returns (bool);
+}
+
 contract ValidationDaiListing is Test {
     address internal constant AAVE_WHALE =
         0x25F2226B597E8F9514B3F68F00f494cF4f286491;
@@ -70,7 +151,9 @@ contract ValidationDaiListing is Test {
 
     // uint256 internal constant STABLE_RATE_SLOPE_2 = 3000000000000000000000000000;
 
-    function setUp() public {}
+    function setUp() public {
+       deal(DAI, ASSET_WHALE, 1000000 ether);
+    }
 
     /// @dev Uses an already deployed payload on the target network
     function testProposalPostPayload() public {
@@ -141,31 +224,36 @@ contract ValidationDaiListing is Test {
             isFrozen: false
         });
 
+        console.log("validating config");
         AaveV2Helpers._validateReserveConfig(
             expectedEnsConfig,
             allConfigsAfter
         );
 
-        AaveV2Helpers._validateInterestRateStrategy(
-            ASSET,
-            ArcDaiListingPayload(payload).INTEREST_RATE_STRATEGY(),
-            InterestStrategyValues({
-                excessUtilization: 20 * (AaveV2Helpers.RAY / 100),
-                optimalUtilization: 80 * (AaveV2Helpers.RAY / 100),
-                baseVariableBorrowRate: 0,
-                stableRateSlope1: 20000000000000000000000000,
-                stableRateSlope2: 750000000000000000000000000,
-                variableRateSlope1: 4 * (AaveV2Helpers.RAY / 100),
-                variableRateSlope2: 75 * (AaveV2Helpers.RAY / 100)
-            }),
-            MARKET_NAME
-        );
+        console.log("validating interest");
 
+        // AaveV2Helpers._validateInterestRateStrategy(
+        //     ASSET,
+        //     ArcDaiListingPayload(payload).INTEREST_RATE_STRATEGY(),
+        //     InterestStrategyValues({
+        //         excessUtilization: 20 * (AaveV2Helpers.RAY / 100),
+        //         optimalUtilization: 80 * (AaveV2Helpers.RAY / 100),
+        //         baseVariableBorrowRate: 0,
+        //         stableRateSlope1: 20000000000000000000000000,
+        //         stableRateSlope2: 750000000000000000000000000,
+        //         variableRateSlope1: 4 * (AaveV2Helpers.RAY / 100),
+        //         variableRateSlope2: 75 * (AaveV2Helpers.RAY / 100)
+        //     }),
+        //     MARKET_NAME
+        // );
+
+        console.log("validating nothing else changed");
         AaveV2Helpers._noReservesConfigsChangesApartNewListings(
             allConfigsBefore,
             allConfigsAfter
         );
 
+        console.log("validating implementations");
         AaveV2Helpers._validateReserveTokensImpls(
             vm,
             AaveV2Helpers._findReserveConfig(allConfigsAfter, "DAI", false),
@@ -178,18 +266,26 @@ contract ValidationDaiListing is Test {
             MARKET_NAME
         );
 
+        console.log("validating oracle");
         AaveV2Helpers._validateAssetSourceOnOracle(
             ASSET,
             ArcDaiListingPayload(payload).FEED_DAI_ETH(),
             MARKET_NAME
         );
 
+        console.log("perform some actions");
         _validatePoolActionsPostListing(allConfigsAfter);
     }
 
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
+        IPermissionManager PERMISSIONS_MANAGER = IPermissionManager(0xF4a1F5fEA79C3609514A417425971FadC10eCfBE);
+
+        assertEq(PERMISSIONS_MANAGER.isInRole(ASSET_WHALE, 0), true);
+        assertEq(PERMISSIONS_MANAGER.isInRole(ASSET_WHALE, 1), true);
+        assertEq(PERMISSIONS_MANAGER.isPermissionsAdmin(ASSET_WHALE), false);
+
         AaveV2Helpers._deposit(
             vm,
             ASSET_WHALE,

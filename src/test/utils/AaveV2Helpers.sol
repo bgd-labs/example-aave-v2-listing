@@ -560,6 +560,10 @@ library AaveV2Helpers {
         if (approve) {
             IERC20(asset).approve(address(market.POOL), amount);
         }
+        console.log("balance", IERC20(asset).balanceOf(depositor));
+        console.log("amount", amount);
+        console.log("depositor", depositor);
+        console.log("onBehalfOf", onBehalfOf);
         market.POOL.deposit(asset, amount, onBehalfOf, 0);
         vm.stopPrank();
         uint256 aTokenAfter = IERC20(aToken).balanceOf(onBehalfOf);
