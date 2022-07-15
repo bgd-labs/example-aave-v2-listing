@@ -44,10 +44,16 @@ If one of the contracts is deployed you can download the contract from etherscan
 For a mainnet v2 listing you might want to diff the a/s/v implementations, with a standard implementation (like e.g. the ones of DAI) to ensure it's correct.
 
 ```sh
+# ENS vs DAI diff example
 make download address=0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 # aDAI impl
 make download address=0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F # aENS impl
 
-# if the code is verified with json format on etherscan you might want to flatten before diffing
+# generate aTokenDiff via
+sh ./diff.sh ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F aTokenDiff
+# Will result in https://gist.github.com/sakulstra/80eec9e5c8f08bbb43f577448524503f
+
+# If the code is verified with flattened format you would need to bring the contracts in a similar format.
+# You can do so by flattening the respective contract.
+# In the example case of ENS and DAI where both are verified via json this method should not be used.
 forge flatten ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/AToken/@aave/protocol-v2/contracts/protocol/tokenization/AToken.sol --output ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/Flattened.sol
-forge flatten ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F/DelegationAwareAToken/contracts/protocol/tokenization/DelegationAwareAToken.sol --output ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F/Flattened.sol
 ```
