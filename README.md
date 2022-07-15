@@ -49,7 +49,7 @@ make download address=0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 # aDAI impl
 make download address=0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F # aENS impl
 
 # generate aTokenDiff via
-sh ./diff.sh ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F aTokenDiff
+sh ./diff.sh ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F aENSimplDiff
 
 # If the code is verified with flattened format you would need to bring the contracts in a similar format.
 # You can do so by flattening the respective contract.
