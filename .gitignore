@@ -10,4 +10,4 @@ out/
 cache/
 
 # Diff
-src/etherscan
+etherscan/
