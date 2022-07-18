@@ -11,3 +11,6 @@ test   :; forge test -vvv --rpc-url=${ETH_RPC_URL} --fork-block-number 14302075 
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 14302075
 clean  :; forge clean
 snapshot :; forge snapshot
+
+# utils
+download :; ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY} cast etherscan-source -d src/etherscan/${address} ${address} 

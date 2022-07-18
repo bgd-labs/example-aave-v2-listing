@@ -8,3 +8,6 @@ reports/
 # Foundry
 out/
 cache/
+
+# Diff
+src/etherscan
