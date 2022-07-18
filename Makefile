@@ -13,4 +13,4 @@ clean  :; forge clean
 snapshot :; forge snapshot
 
 # utils
-download :; ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY} cast etherscan-source -d src/etherscan/${address} ${address} 
+download :; ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY} cast etherscan-source -d etherscan/${address} ${address} 
