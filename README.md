@@ -49,10 +49,10 @@ make download address=0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 # aDAI impl
 make download address=0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F # aENS impl
 
 # generate aTokenDiff via
-sh ./diff.sh ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./src/etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F aENSimplDiff
+sh ./diff.sh ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./etherscan/0xB2f4Fb41F01CdeF7c10F0e8aFbeB3cFA79d1686F aENSimplDiff
 
 # If the code is only available with flattened format you would need to bring the contracts in a similar format.
 # You can do so by flattening the respective contract.
 # In the example case of ENS and DAI where both are verified via json this method should not be used.
-forge flatten ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/AToken/@aave/protocol-v2/contracts/protocol/tokenization/AToken.sol --output ./src/etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/Flattened.sol
+forge flatten ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/AToken/@aave/protocol-v2/contracts/protocol/tokenization/AToken.sol --output ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/Flattened.sol
 ```
