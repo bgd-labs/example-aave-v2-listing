@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBook.sol';
 import { TokenData } from 'aave-address-book/AaveV2.sol';
 
-import {IERC20} from "../../interfaces/IERC20.sol";
+import {IERC20} from "src/contracts/interfaces/IERC20.sol";
 
 struct ReserveTokens {
     address aToken;

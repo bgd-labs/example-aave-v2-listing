@@ -2,3 +2,10 @@
 optimizer = true
 optimizer_runs = 200
 libs = ['lib']
+src = 'src'
+test = 'test'
+out = 'out'
+
+[rpc_endpoints]
+polygon = "${RPC_POLYGON}"
+mainnet = "${RPC_MAINNET}"
