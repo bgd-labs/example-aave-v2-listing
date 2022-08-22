@@ -7,5 +7,4 @@ test = 'test'
 out = 'out'
 
 [rpc_endpoints]
-polygon = "${RPC_POLYGON}"
-mainnet = "${RPC_MAINNET}"
+ethereum = "${RPC_ETHEREUM}"
