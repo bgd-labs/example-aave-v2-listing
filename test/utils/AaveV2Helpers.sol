@@ -33,6 +33,21 @@ struct ReserveConfig {
     bool isFrozen;
 }
 
+// @dev to not have stack too deep
+struct ConfigLite {
+    uint256 decimals;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 reserveFactor;
+    bool usageAsCollateralEnabled;
+    bool borrowingEnabled;
+    bool stableBorrowRateEnabled;
+    bool isActive;
+    bool isFrozen;
+    address interestRateStrategyAddress;
+}
+
 struct ReserveConfigurationMap {
     //bit 0-15: LTV
     //bit 16-31: Liq. threshold
@@ -230,8 +245,28 @@ library AaveV2Helpers {
         view
         returns (ReserveConfig memory)
     {
-        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
         ReserveConfig memory localConfig;
+        ConfigLite memory configData = _getConfigData(marketName, reserve.tokenAddress);
+        localConfig.symbol = reserve.symbol;
+        localConfig.underlying = reserve.tokenAddress;
+        localConfig.decimals = configData.decimals;
+        localConfig.ltv = configData.ltv;
+        localConfig.liquidationThreshold = configData.liquidationThreshold;
+        localConfig.liquidationBonus = configData.liquidationBonus;
+        localConfig.reserveFactor = configData.reserveFactor;
+        localConfig.usageAsCollateralEnabled = configData.usageAsCollateralEnabled;
+        localConfig.borrowingEnabled = configData.borrowingEnabled;
+        localConfig.stableBorrowRateEnabled = configData.stableBorrowRateEnabled;
+        localConfig.interestRateStrategy = configData.interestRateStrategyAddress;
+        localConfig.isActive = configData.isActive;
+        localConfig.isFrozen = configData.isFrozen;
+
+        return localConfig;
+    }
+
+    /// @dev to fix stack too deep
+    function _getConfigData(string memory marketName, address tokenAddress) internal view returns (ConfigLite memory) {
+        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
         (
             uint256 decimals,
             uint256 ltv,
@@ -243,24 +278,24 @@ library AaveV2Helpers {
             bool stableBorrowRateEnabled,
             bool isActive,
             bool isFrozen
-        ) = market.AAVE_PROTOCOL_DATA_PROVIDER.getReserveConfigurationData(reserve.tokenAddress);
-        localConfig.symbol = reserve.symbol;
-        localConfig.underlying = reserve.tokenAddress;
-        localConfig.decimals = decimals;
-        localConfig.ltv = ltv;
-        localConfig.liquidationThreshold = liquidationThreshold;
-        localConfig.liquidationBonus = liquidationBonus;
-        localConfig.reserveFactor = reserveFactor;
-        localConfig.usageAsCollateralEnabled = usageAsCollateralEnabled;
-        localConfig.borrowingEnabled = borrowingEnabled;
-        localConfig.stableBorrowRateEnabled = stableBorrowRateEnabled;
-        localConfig.interestRateStrategy = market.POOL
-            .getReserveData(reserve.tokenAddress)
-            .interestRateStrategyAddress;
-        localConfig.isActive = isActive;
-        localConfig.isFrozen = isFrozen;
+        ) = market.AAVE_PROTOCOL_DATA_PROVIDER.getReserveConfigurationData(tokenAddress);
+        address interestRateStrategyAddress = market.POOL
+        .getReserveData(tokenAddress)
+        .interestRateStrategyAddress;
 
-        return localConfig;
+        return ConfigLite({
+            decimals: decimals,
+            ltv: ltv,
+            liquidationThreshold: liquidationThreshold,
+            liquidationBonus: liquidationBonus,
+            reserveFactor: reserveFactor,
+            usageAsCollateralEnabled: usageAsCollateralEnabled,
+            borrowingEnabled: borrowingEnabled,
+            stableBorrowRateEnabled: stableBorrowRateEnabled,
+            isActive: isActive,
+            isFrozen: isFrozen,
+            interestRateStrategyAddress: interestRateStrategyAddress
+        });
     }
 
     /// @dev Ugly, but necessary to avoid Stack Too Deep
@@ -649,7 +684,7 @@ library AaveV2Helpers {
     }
 
     function _validateAssetSourceOnOracle(address asset, address expectedSource, string memory marketName)
-        external
+        external view
     {
         AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
 
