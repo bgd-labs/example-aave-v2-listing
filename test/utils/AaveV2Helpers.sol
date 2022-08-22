@@ -215,26 +215,29 @@ library AaveV2Helpers {
         view
         returns (ReserveConfig[] memory)
     {
+        console.log('--------------- ', marketName);
         AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
+        console.log('---------------');
         LocalVars memory vars;
-
-        vars.reserves = market.AAVE_PROTOCOL_DATA_PROVIDER.getAllReservesTokens();
-
-        vars.configs = new ReserveConfig[](vars.reserves.length);
-
-        for (uint256 i = 0; i < vars.reserves.length; i++) {
-            vars.configs[i] = _getStructReserveConfig(vars.reserves[i], marketName);
-            ReserveTokens memory reserveTokens = _getStructReserveTokens(
-                vars.configs[i].underlying,
-                marketName
-            );
-            vars.configs[i].aToken = reserveTokens.aToken;
-            vars.configs[i].variableDebtToken = reserveTokens.variableDebtToken;
-            vars.configs[i].stableDebtToken = reserveTokens.stableDebtToken;
-            if (withLogs) {
-                _logReserveConfig(vars.configs[i]);
-            }
-        }
+//        console.log('---------------');
+//        vars.reserves = market.AAVE_PROTOCOL_DATA_PROVIDER.getAllReservesTokens();
+//        console.log('---------------');
+//        vars.configs = new ReserveConfig[](vars.reserves.length);
+//
+//        for (uint256 i = 0; i < vars.reserves.length; i++) {
+//            console.log('---------------');
+//            vars.configs[i] = _getStructReserveConfig(vars.reserves[i], marketName);
+//            ReserveTokens memory reserveTokens = _getStructReserveTokens(
+//                vars.configs[i].underlying,
+//                marketName
+//            );
+//            vars.configs[i].aToken = reserveTokens.aToken;
+//            vars.configs[i].variableDebtToken = reserveTokens.variableDebtToken;
+//            vars.configs[i].stableDebtToken = reserveTokens.stableDebtToken;
+//            if (withLogs) {
+//                _logReserveConfig(vars.configs[i]);
+//            }
+//        }
 
         return vars.configs;
     }
@@ -245,8 +248,10 @@ library AaveV2Helpers {
         view
         returns (ReserveConfig memory)
     {
+        console.log('---------------');
         ReserveConfig memory localConfig;
         ConfigLite memory configData = _getConfigData(marketName, reserve.tokenAddress);
+        console.log('---------------');
         localConfig.symbol = reserve.symbol;
         localConfig.underlying = reserve.tokenAddress;
         localConfig.decimals = configData.decimals;
@@ -266,6 +271,7 @@ library AaveV2Helpers {
 
     /// @dev to fix stack too deep
     function _getConfigData(string memory marketName, address tokenAddress) internal view returns (ConfigLite memory) {
+        console.log('---------------');
         AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
         (
             uint256 decimals,
@@ -279,10 +285,11 @@ library AaveV2Helpers {
             bool isActive,
             bool isFrozen
         ) = market.AAVE_PROTOCOL_DATA_PROVIDER.getReserveConfigurationData(tokenAddress);
+        console.log('---------------');
         address interestRateStrategyAddress = market.POOL
         .getReserveData(tokenAddress)
         .interestRateStrategyAddress;
-
+        console.log('---------------');
         return ConfigLite({
             decimals: decimals,
             ltv: ltv,
