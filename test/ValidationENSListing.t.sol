@@ -29,7 +29,7 @@ contract ValidationENSListing is Test {
     string internal MARKET_NAME = AaveAddressBookV2.AaveV2Ethereum; 
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("ethereum"), 15370248);
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 14302070);
     }
 
     /// @dev Uses an already deployed payload on the target network
@@ -42,104 +42,104 @@ contract ValidationENSListing is Test {
         ReserveConfig[] memory allConfigsBefore = AaveV2Helpers
             ._getReservesConfigs(false, MARKET_NAME);
 
-//        address[] memory targets = new address[](1);
-//        targets[0] = payload;
-//        uint256[] memory values = new uint256[](1);
-//        values[0] = 0;
-//        string[] memory signatures = new string[](1);
-//        signatures[0] = "execute()";
-//        bytes[] memory calldatas = new bytes[](1);
-//        calldatas[0] = "";
-//        bool[] memory withDelegatecalls = new bool[](1);
-//        withDelegatecalls[0] = true;
-//
-//        uint256 proposalId = GovHelpers.createProposal(
-//            vm,
-//            IAaveGov.SPropCreateParams({
-//                executor: GovHelpers.SHORT_EXECUTOR,
-//                targets: targets,
-//                values: values,
-//                signatures: signatures,
-//                calldatas: calldatas,
-//                withDelegatecalls: withDelegatecalls,
-//                ipfsHash: bytes32(0)
-//            })
-//        );
-//
-//        GovHelpers.passVoteAndExecute(vm, proposalId);
+        address[] memory targets = new address[](1);
+        targets[0] = payload;
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+        string[] memory signatures = new string[](1);
+        signatures[0] = "execute()";
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = "";
+        bool[] memory withDelegatecalls = new bool[](1);
+        withDelegatecalls[0] = true;
 
-//        ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
-//            ._getReservesConfigs(false, MARKET_NAME);
-//
-//        AaveV2Helpers._validateCountOfListings(
-//            1,
-//            allConfigsBefore,
-//            allConfigsAfter
-//        );
-//
-//        ReserveConfig memory expectedEnsConfig = ReserveConfig({
-//            symbol: "ENS",
-//            underlying: ENS,
-//            aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-//            variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-//            stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-//            decimals: 18,
-//            ltv: 5000,
-//            liquidationThreshold: 6000,
-//            liquidationBonus: 10800,
-//            reserveFactor: 2000,
-//            usageAsCollateralEnabled: true,
-//            borrowingEnabled: true,
-//            interestRateStrategy: 0xb2eD1eCE1c13455Ce9299d35D3B00358529f3Dc8,
-//            stableBorrowRateEnabled: false,
-//            isActive: true,
-//            isFrozen: false
-//        });
-//
-//        AaveV2Helpers._validateReserveConfig(
-//            expectedEnsConfig,
-//            allConfigsAfter
-//        );
-//
-//        AaveV2Helpers._validateInterestRateStrategy(
-//            ENS,
-//            ENSListingPayload(payload).INTEREST_RATE_STRATEGY(),
-//            InterestStrategyValues({
-//                excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
-//                optimalUtilization: 45 * (AaveV2Helpers.RAY / 100),
-//                baseVariableBorrowRate: 0,
-//                stableRateSlope1: 0,
-//                stableRateSlope2: 0,
-//                variableRateSlope1: 7 * (AaveV2Helpers.RAY / 100),
-//                variableRateSlope2: 300 * (AaveV2Helpers.RAY / 100)
-//            }),
-//            MARKET_NAME
-//        );
-//
-//        AaveV2Helpers._noReservesConfigsChangesApartNewListings(
-//            allConfigsBefore,
-//            allConfigsAfter
-//        );
-//
-//        AaveV2Helpers._validateReserveTokensImpls(
-//            vm,
-//            AaveV2Helpers._findReserveConfig(allConfigsAfter, "ENS", false),
-//            ReserveTokens({
-//                aToken: ENSListingPayload(payload).ATOKEN_IMPL(),
-//                stableDebtToken: ENSListingPayload(payload).STABLE_DEBT_IMPL(),
-//                variableDebtToken: ENSListingPayload(payload)
-//                    .VARIABLE_DEBT_IMPL()
-//            }),
-//            MARKET_NAME
-//        );
-//
-//        AaveV2Helpers._validateAssetSourceOnOracle(
-//            ENS,
-//            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH(),
-//            MARKET_NAME
-//        );
+        uint256 proposalId = GovHelpers.createProposal(
+            vm,
+            IAaveGov.SPropCreateParams({
+                executor: GovHelpers.SHORT_EXECUTOR,
+                targets: targets,
+                values: values,
+                signatures: signatures,
+                calldatas: calldatas,
+                withDelegatecalls: withDelegatecalls,
+                ipfsHash: bytes32(0)
+            })
+        );
 
-//        _validatePoolActionsPostListing(allConfigsAfter);
+        GovHelpers.passVoteAndExecute(vm, proposalId);
+
+        ReserveConfig[] memory allConfigsAfter = AaveV2Helpers
+            ._getReservesConfigs(false, MARKET_NAME);
+
+        AaveV2Helpers._validateCountOfListings(
+            1,
+            allConfigsBefore,
+            allConfigsAfter
+        );
+
+        ReserveConfig memory expectedEnsConfig = ReserveConfig({
+            symbol: "ENS",
+            underlying: ENS,
+            aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+            variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+            stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+            decimals: 18,
+            ltv: 5000,
+            liquidationThreshold: 6000,
+            liquidationBonus: 10800,
+            reserveFactor: 2000,
+            usageAsCollateralEnabled: true,
+            borrowingEnabled: true,
+            interestRateStrategy: 0xb2eD1eCE1c13455Ce9299d35D3B00358529f3Dc8,
+            stableBorrowRateEnabled: false,
+            isActive: true,
+            isFrozen: false
+        });
+
+        AaveV2Helpers._validateReserveConfig(
+            expectedEnsConfig,
+            allConfigsAfter
+        );
+
+        AaveV2Helpers._validateInterestRateStrategy(
+            ENS,
+            ENSListingPayload(payload).INTEREST_RATE_STRATEGY(),
+            InterestStrategyValues({
+                excessUtilization: 55 * (AaveV2Helpers.RAY / 100),
+                optimalUtilization: 45 * (AaveV2Helpers.RAY / 100),
+                baseVariableBorrowRate: 0,
+                stableRateSlope1: 0,
+                stableRateSlope2: 0,
+                variableRateSlope1: 7 * (AaveV2Helpers.RAY / 100),
+                variableRateSlope2: 300 * (AaveV2Helpers.RAY / 100)
+            }),
+            MARKET_NAME
+        );
+
+        AaveV2Helpers._noReservesConfigsChangesApartNewListings(
+            allConfigsBefore,
+            allConfigsAfter
+        );
+
+        AaveV2Helpers._validateReserveTokensImpls(
+            vm,
+            AaveV2Helpers._findReserveConfig(allConfigsAfter, "ENS", false),
+            ReserveTokens({
+                aToken: ENSListingPayload(payload).ATOKEN_IMPL(),
+                stableDebtToken: ENSListingPayload(payload).STABLE_DEBT_IMPL(),
+                variableDebtToken: ENSListingPayload(payload)
+                    .VARIABLE_DEBT_IMPL()
+            }),
+            MARKET_NAME
+        );
+
+        AaveV2Helpers._validateAssetSourceOnOracle(
+            ENS,
+            ENSListingPayload(payload).FEED_ENS_USD_TO_ENS_ETH(),
+            MARKET_NAME
+        );
+
+        _validatePoolActionsPostListing(allConfigsAfter);
     }
 
     function _validatePoolActionsPostListing(
