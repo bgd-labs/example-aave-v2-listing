@@ -8,7 +8,7 @@ contract DeployENSListingPayload is Script {
     function run() public {
         vm.startBroadcast();
 
-        address ensListingPayload = address(new ENSListingPayload());
+        new ENSListingPayload();
 
         vm.stopBroadcast();
     }
