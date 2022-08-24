@@ -9,6 +9,8 @@ library DeployL1Proposal {
     internal
     returns (uint256 proposalId)
   {
+    require(payload != address(0), "ERROR: PAYLOAD can't be address(0)");
+    require(ipfsHash != bytes32(0), "ERROR: IPFS_HASH can't be bytes32(0)");
     address[] memory targets = new address[](1);
     targets[0] = payload;
     uint256[] memory values = new uint256[](1);
@@ -32,15 +34,13 @@ library DeployL1Proposal {
   }
 }
 
-contract DeployX is Script {
-  address internal constant PAYLOAD = address(0); // TODO: add here deployed payload address
-  bytes32 internal constant IPFS_HASH = bytes32(0); // TODO: add here proposal ipfs hash
-
+contract DeployENS is Script {
   function run() external {
-    require(PAYLOAD != address(0), "ERROR: PAYLOAD can't be address(0)");
-    require(IPFS_HASH != bytes32(0), "ERROR: IPFS_HASH can't be bytes32(0)");
     vm.startBroadcast();
-    DeployL1Proposal._deployL1Proposal(PAYLOAD, IPFS_HASH);
+    DeployL1Proposal._deployL1Proposal(
+      0xf42D0a1b03C0795021272a4793CD03dCb97581D3,
+      0x54f91e12ea75ccaf9101fa8d59bf08b9edab7a745f16ca0ac26b668e47b93952
+    );
     vm.stopBroadcast();
   }
 }

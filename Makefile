@@ -16,4 +16,4 @@ snapshot :; forge snapshot
 download :; ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY} cast etherscan-source -d etherscan/${address} ${address}
 
 # deploy
-deploy-l1-x-proposal-ledger :; forge script script/ProposalCreation.s.sol:DeployX --rpc-url ${RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} -vvvv
+deploy-l1-ens-proposal-ledger :; forge script script/ProposalCreation.s.sol:DeployENS --rpc-url ${RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} -vvvv

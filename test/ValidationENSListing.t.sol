@@ -34,20 +34,15 @@ contract ValidationENSListing is Test {
   }
 
   /// @dev Uses an already deployed payload on the target network
-  function testProposalPostPayload() public {
-    address payload = 0xf42D0a1b03C0795021272a4793CD03dCb97581D3;
-    _testProposal(payload);
-  }
-
-  function _testProposal(address payload) internal {
+  function testProposalPostPayload(address payload) public {
     ReserveConfig[] memory allConfigsBefore = AaveV2Helpers._getReservesConfigs(
       false,
       MARKET_NAME
     );
     vm.startPrank(GovHelpers.AAVE_WHALE);
     uint256 proposalId = DeployL1Proposal._deployL1Proposal(
-      payload,
-      bytes32(0)
+      0xf42D0a1b03C0795021272a4793CD03dCb97581D3,
+      0x54f91e12ea75ccaf9101fa8d59bf08b9edab7a745f16ca0ac26b668e47b93952
     );
     vm.stopPrank();
 
