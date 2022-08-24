@@ -6,8 +6,8 @@ import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBook.sol';
 import { GovHelpers, IAaveGov } from "aave-helpers/GovHelpers.sol";
 import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} from "./utils/AaveV2Helpers.sol";
 
-import {ENSListingPayload} from "../ENSListingPayload.sol";
-import {IERC20} from "../interfaces/IERC20.sol";
+import {ENSListingPayload} from "src/contracts/ENSListingPayload.sol";
+import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 
 contract ValidationENSListing is Test {
     address internal constant AAVE_WHALE =
@@ -26,9 +26,11 @@ contract ValidationENSListing is Test {
         0xd7A029Db2585553978190dB5E85eC724Aa4dF23f;
 
     // can't be constant for some reason
-    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Ethereum; 
+    string internal MARKET_NAME = AaveAddressBookV2.AaveV2Ethereum;
 
-    function setUp() public {}
+    function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("ethereum"), 14302070);
+    }
 
     /// @dev Uses an already deployed payload on the target network
     function testProposalPostPayload() public {

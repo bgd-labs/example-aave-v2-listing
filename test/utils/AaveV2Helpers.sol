@@ -5,8 +5,7 @@ import "forge-std/Vm.sol";
 import "forge-std/console.sol";
 import { AaveAddressBookV2 } from 'aave-address-book/AaveAddressBook.sol';
 import { TokenData } from 'aave-address-book/AaveV2.sol';
-
-import {IERC20} from "../../interfaces/IERC20.sol";
+import {IERC20} from "solidity-utils/contracts/oz-common/interfaces/IERC20.sol";
 
 struct ReserveTokens {
     address aToken;
@@ -31,6 +30,21 @@ struct ReserveConfig {
     bool stableBorrowRateEnabled;
     bool isActive;
     bool isFrozen;
+}
+
+// @dev to not have stack too deep
+struct ConfigLite {
+    uint256 decimals;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 reserveFactor;
+    bool usageAsCollateralEnabled;
+    bool borrowingEnabled;
+    bool stableBorrowRateEnabled;
+    bool isActive;
+    bool isFrozen;
+    address interestRateStrategyAddress;
 }
 
 struct ReserveConfigurationMap {
@@ -200,11 +214,9 @@ library AaveV2Helpers {
         view
         returns (ReserveConfig[] memory)
     {
-        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
+        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(AaveAddressBookV2.AaveV2Ethereum);
         LocalVars memory vars;
-
         vars.reserves = market.AAVE_PROTOCOL_DATA_PROVIDER.getAllReservesTokens();
-
         vars.configs = new ReserveConfig[](vars.reserves.length);
 
         for (uint256 i = 0; i < vars.reserves.length; i++) {
@@ -230,8 +242,28 @@ library AaveV2Helpers {
         view
         returns (ReserveConfig memory)
     {
-        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
         ReserveConfig memory localConfig;
+        ConfigLite memory configData = _getConfigData(marketName, reserve.tokenAddress);
+        localConfig.symbol = reserve.symbol;
+        localConfig.underlying = reserve.tokenAddress;
+        localConfig.decimals = configData.decimals;
+        localConfig.ltv = configData.ltv;
+        localConfig.liquidationThreshold = configData.liquidationThreshold;
+        localConfig.liquidationBonus = configData.liquidationBonus;
+        localConfig.reserveFactor = configData.reserveFactor;
+        localConfig.usageAsCollateralEnabled = configData.usageAsCollateralEnabled;
+        localConfig.borrowingEnabled = configData.borrowingEnabled;
+        localConfig.stableBorrowRateEnabled = configData.stableBorrowRateEnabled;
+        localConfig.interestRateStrategy = configData.interestRateStrategyAddress;
+        localConfig.isActive = configData.isActive;
+        localConfig.isFrozen = configData.isFrozen;
+
+        return localConfig;
+    }
+
+    /// @dev to fix stack too deep
+    function _getConfigData(string memory marketName, address tokenAddress) internal view returns (ConfigLite memory) {
+        AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
         (
             uint256 decimals,
             uint256 ltv,
@@ -243,24 +275,23 @@ library AaveV2Helpers {
             bool stableBorrowRateEnabled,
             bool isActive,
             bool isFrozen
-        ) = market.AAVE_PROTOCOL_DATA_PROVIDER.getReserveConfigurationData(reserve.tokenAddress);
-        localConfig.symbol = reserve.symbol;
-        localConfig.underlying = reserve.tokenAddress;
-        localConfig.decimals = decimals;
-        localConfig.ltv = ltv;
-        localConfig.liquidationThreshold = liquidationThreshold;
-        localConfig.liquidationBonus = liquidationBonus;
-        localConfig.reserveFactor = reserveFactor;
-        localConfig.usageAsCollateralEnabled = usageAsCollateralEnabled;
-        localConfig.borrowingEnabled = borrowingEnabled;
-        localConfig.stableBorrowRateEnabled = stableBorrowRateEnabled;
-        localConfig.interestRateStrategy = market.POOL
-            .getReserveData(reserve.tokenAddress)
-            .interestRateStrategyAddress;
-        localConfig.isActive = isActive;
-        localConfig.isFrozen = isFrozen;
-
-        return localConfig;
+        ) = market.AAVE_PROTOCOL_DATA_PROVIDER.getReserveConfigurationData(tokenAddress);
+        address interestRateStrategyAddress = market.POOL
+        .getReserveData(tokenAddress)
+        .interestRateStrategyAddress;
+        return ConfigLite({
+            decimals: decimals,
+            ltv: ltv,
+            liquidationThreshold: liquidationThreshold,
+            liquidationBonus: liquidationBonus,
+            reserveFactor: reserveFactor,
+            usageAsCollateralEnabled: usageAsCollateralEnabled,
+            borrowingEnabled: borrowingEnabled,
+            stableBorrowRateEnabled: stableBorrowRateEnabled,
+            isActive: isActive,
+            isFrozen: isFrozen,
+            interestRateStrategyAddress: interestRateStrategyAddress
+        });
     }
 
     /// @dev Ugly, but necessary to avoid Stack Too Deep
@@ -649,7 +680,7 @@ library AaveV2Helpers {
     }
 
     function _validateAssetSourceOnOracle(address asset, address expectedSource, string memory marketName)
-        external
+        external view
     {
         AaveAddressBookV2.Market memory market = AaveAddressBookV2.getMarket(marketName);
 
