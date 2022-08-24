@@ -16,19 +16,19 @@ cp .env.example .env
 ### Dependencies
 
 ```sh
-make update
+forge update
 ```
 
 ### Compilation
 
 ```sh
-make build
+forge build
 ```
 
 ### Testing
 
 ```sh
-make test
+forge test
 ```
 
 ### Diffing
