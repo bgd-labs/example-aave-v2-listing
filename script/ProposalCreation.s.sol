@@ -21,6 +21,7 @@ library DeployL1Proposal {
     calldatas[0] = '';
     bool[] memory withDelegatecalls = new bool[](1);
     withDelegatecalls[0] = true;
+
     return
       AaveGovernanceV2.GOV.create(
         IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR),
