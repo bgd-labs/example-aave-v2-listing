@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "This repository contains an example of a listing on Aave v2 Ethereum, including some useful helpers to test the protocol post-proposal execution.",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "lib": "lib",
     "test": "test"
   },
   "scripts": {
+    "js:proposal": "node --experimental-json-modules js-scripts/proposals.js",
     "LUSDvsDAIaToken:diff": "npm run getDAIaToken && npm run getLUSDaToken && npm run generateDiff:aLUSD-aDAI",
     "getDAIaToken": "sh sourceEtherscan.sh 0x7b2a3CF972C3193F26CdeC6217D27379b6417bD0 aDAI",
     "getLUSDaToken": "sh sourceEtherscan.sh 0x893E606358205AD994e610ad48e8aEF98aEadDbe aLUSD",
@@ -27,5 +29,10 @@
   "devDependencies": {
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-beta.24"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.7.0"
   }
 }
