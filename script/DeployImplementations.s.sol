@@ -27,9 +27,9 @@ contract DeployImplementationsScript is Script, Test {
   // artifacts
   string internal constant aTokenArtifact = 'AToken.sol:AToken';
   string internal constant stableDebtArtifact =
-    'stableDebt.sol:StableDebtToken';
+    'StableDebt.sol:StableDebtToken';
   string internal constant variableDebtArtifact =
-    'varDebt.sol:VariableDebtToken';
+    'VariableDebt.sol:VariableDebtToken';
 
   function deployASVTokens(
     address underlyingAsset,
