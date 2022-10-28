@@ -10,7 +10,8 @@ contract DeployImplementationsScript is Script, Test {
   string public constant UNDERLYING_ASSET_SYMBOL = 'ENS';
   uint8 public constant DECIMALS = 18;
 
-  address internal constant INCENTIVES_CONTROLLER = address(0);
+  address internal constant INCENTIVES_CONTROLLER =
+    address(0xd784927Ff2f95ba542BfC824c8a8a98F3495f6b5);
 
   string public constant ATOKEN_NAME_PREFIX = 'Aave interest bearing ';
   string public constant ATOKEN_SYMBOL_PREFIX = 'a';
