@@ -62,7 +62,8 @@ forge flatten ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/AToken/@aav
 1. You first need to deploy the implementations for your asset and initialize them.
    You can do so by altering [this line](./script/DeployImplementations.s.sol#L104) in the implementations deployment script to suite your needs and deploying the implementations via `make deploy-implementations`.
 
-2. You then need to deploy the payload following the [ENSListingPayload example](./src/ENSListingPayload.sol). The Payload expects the 3 addresses deployed in step 1) as input on the [constructor](./src/ENSListingPayload.sol#L29).
+2. You then need to create & deploy your payload based on the [ENSListingPayload example](./src/ENSListingPayload.sol).
+   The Payload expects the 3 addresses deployed in step 1) as input on the [constructor](./src/ENSListingPayload.sol#L29).
 
 3. You then need to create the on-chain proposal following the example in [ProposalCreation](./script/ProposalCreation.s.sol).
 
