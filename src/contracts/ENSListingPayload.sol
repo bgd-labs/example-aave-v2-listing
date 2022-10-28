@@ -52,6 +52,7 @@ contract ENSListingPayload is IProposalGenericExecutor {
       INTEREST_RATE_STRATEGY
     );
 
+    // WARNING: if you were to enable stable borrowing via `true` you also need to call `setMarketBorrowRate` on the LendingRateOracle to set the baseRate
     AaveV2Ethereum.POOL_CONFIGURATOR.enableBorrowingOnReserve(ENS, false);
     AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(ENS, RESERVE_FACTOR);
     AaveV2Ethereum.POOL_CONFIGURATOR.configureReserveAsCollateral(
