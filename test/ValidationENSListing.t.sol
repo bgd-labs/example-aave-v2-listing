@@ -9,6 +9,7 @@ import {AaveV2Helpers, ReserveConfig, ReserveTokens, InterestStrategyValues} fro
 import {ENSListingPayload} from 'src/contracts/ENSListingPayload.sol';
 import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
 import {DeployL1Proposal} from '../script/ProposalCreation.s.sol';
+import {DeployImplementationsScript} from '../script/DeployImplementations.s.sol';
 
 contract ValidationENSListing is Test {
   address internal constant AAVE_WHALE =
@@ -34,7 +35,12 @@ contract ValidationENSListing is Test {
   }
 
   function testProposalPostPayload() public {
-    address payload = 0xf42D0a1b03C0795021272a4793CD03dCb97581D3;
+    DeployImplementationsScript deployer = new DeployImplementationsScript();
+    (address aTokenImpl, address vTokenImpl, address sTokenImpl) = deployer
+      .deployASVTokens(ENS, 18, 'ENS');
+    address payload = address(
+      new ENSListingPayload(aTokenImpl, vTokenImpl, sTokenImpl)
+    );
     _testProposal(payload);
   }
 

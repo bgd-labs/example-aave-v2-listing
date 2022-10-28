@@ -2,10 +2,10 @@
 
 This repository contains an example of a listing on Aave v2 Ethereum, including some useful helpers to test the protocol post-proposal execution.
 
+- Implementations deploy script: [DeployImplementations](./script/DeployImplementations.sol)
 - Proposal payload: [ENSListingPayload](./src/ENSListingPayload.sol)
 - Listing tests: [ValidationENSListing](test/ValidationENSListing.t.sol)
 - Aave v2 pool helpers: [AaveV2Helpers](test/utils/AaveV2Helpers.sol)
-- Aave governance helpers: [AaveGovHelpers](test/utils/AaveGovHelpers.sol)
 
 ### Prepare env
 
@@ -56,3 +56,15 @@ sh ./diff.sh ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0 ./etherscan/
 # In the example case of ENS and DAI where both are verified via json this method should not be used.
 forge flatten ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/AToken/@aave/protocol-v2/contracts/protocol/tokenization/AToken.sol --output ./etherscan/0x7b2a3cf972c3193f26cdec6217d27379b6417bd0/Flattened.sol
 ```
+
+### Production deployment
+
+1. You first need to deploy the implementations for your asset and initialize them.
+   You can do so by altering [this line](./script/DeployImplementations.s.sol#L104) in the implementations deployment script to suite your needs and deploying the implementations via `make deploy-implementations`.
+
+2. You then need to create & deploy your payload based on the [ENSListingPayload example](./src/ENSListingPayload.sol).
+   The Payload expects the 3 addresses deployed in step 1) as input on the [constructor](./src/ENSListingPayload.sol#L29).
+
+3. You then need to create the on-chain proposal following the example in [ProposalCreation](./script/ProposalCreation.s.sol).
+
+While these steps build on each other, they don't have to be performed by the same address.
